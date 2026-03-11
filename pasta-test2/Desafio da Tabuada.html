@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Desafio da Tabuada</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+background:#1e3a5f;
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+}
+
+/* FUNDO ANIMADO */
+
+.math-bg{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+z-index:0;
+}
+
+.math{
+position:absolute;
+color:rgba(0,200,255,0.25);
+font-size:32px;
+font-weight:bold;
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+
+0%{
+transform:translateY(-10vh);
+opacity:0;
+}
+
+10%{
+opacity:1;
+}
+
+100%{
+transform:translateY(110vh);
+opacity:0;
+}
+
+}
+
+/* PAINEL PRINCIPAL */
+
+.game-panel{
+background:#f0f8ff;
+width:750px;
+max-width:95%;
+border-radius:40px;
+padding:30px;
+text-align:center;
+box-shadow:0 20px 35px rgba(0,0,0,0.6);
+border:3px solid #6ec6ff;
+position:relative;
+z-index:1;
+}
+
+/* TELAS */
+
+.screen{
+display:none;
+}
+
+.screen.active{
+display:block;
+}
+
+/* MENU */
+
+.menu-title{
+font-size:3.4rem;
+font-weight:800;
+color:#1976d2;
+margin-bottom:30px;
+}
+
+.menu-buttons{
+display:flex;
+flex-direction:column;
+gap:20px;
+align-items:center;
+}
+
+.menu-btn{
+background:#4fc3f7;
+border:3px solid #0288d1;
+color:white;
+font-size:2rem;
+font-weight:bold;
+padding:15px 45px;
+min-width:260px;
+border-radius:100px;
+box-shadow:0 7px 0 #0277bd;
+cursor:pointer;
+}
+
+.menu-btn.small{
+font-size:1.7rem;
+}
+
+.menu-btn:active{
+transform:translateY(5px);
+box-shadow:0 2px 0 #0277bd;
+}
+
+/* CARDS */
+
+.info-card{
+background:#e3f2fd;
+border-radius:40px;
+padding:30px;
+border:4px solid #64b5f6;
+margin:20px 0;
+}
+
+.info-card h2{
+color:#1565c0;
+margin-bottom:20px;
+}
+
+.info-card p{
+font-size:1.3rem;
+margin-bottom:15px;
+}
+
+/* CREDITOS */
+
+.credits-names{
+font-size:2rem;
+font-weight:bold;
+margin:20px 0;
+color:#0d47a1;
+}
+
+.patrocinio-img img{
+max-width:100%;
+border-radius:20px;
+border:3px solid #64b5f6;
+}
+
+/* BOTÕES */
+
+.back-arrow{
+background:#42a5f5;
+color:white;
+border:none;
+font-size:1.5rem;
+padding:12px 30px;
+border-radius:40px;
+cursor:pointer;
+box-shadow:0 5px 0 #1e88e5;
+}
+
+/* JOGO */
+
+.game-header{
+display:flex;
+justify-content:space-between;
+background:#0288d1;
+color:white;
+padding:15px 25px;
+border-radius:50px;
+font-size:1.5rem;
+margin-bottom:25px;
+}
+
+.stats{
+display:flex;
+justify-content:space-around;
+margin-bottom:20px;
+}
+
+.stats div{
+background:#0288d1;
+color:white;
+padding:10px 25px;
+border-radius:40px;
+font-size:1.4rem;
+font-weight:bold;
+}
+
+.question{
+background:#bbdefb;
+border-radius:80px;
+padding:40px 20px;
+font-size:3rem;
+border:4px solid #42a5f5;
+margin:20px 0;
+font-weight:700;
+}
+
+input{
+font-size:2.4rem;
+padding:12px;
+width:150px;
+text-align:center;
+border-radius:40px;
+border:4px solid #42a5f5;
+background:#e3f2fd;
+}
+
+.answer-btn{
+background:#4fc3f7;
+border:none;
+font-size:2rem;
+padding:15px 45px;
+border-radius:60px;
+font-weight:bold;
+color:white;
+cursor:pointer;
+margin:10px 0 20px;
+box-shadow:0 6px 0 #0288d1;
+}
+
+.answer-btn:active{
+transform:translateY(5px);
+box-shadow:0 1px 0 #0288d1;
+}
+
+.feedback{
+background:#e3f2fd;
+border-radius:40px;
+padding:18px;
+font-size:1.8rem;
+margin:15px 0;
+border:3px solid #64b5f6;
+min-height:60px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.final-score{
+font-size:2rem;
+background:#bbdefb;
+border-radius:50px;
+padding:25px;
+margin-top:20px;
+border:4px solid #42a5f5;
+display:none;
+}
+
+.back-menu-small{
+background:#42a5f5;
+color:white;
+border:none;
+font-size:1.3rem;
+padding:10px 25px;
+border-radius:40px;
+margin-top:20px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="math-bg" id="mathbg"></div>
+
+<div class="game-panel">
+
+<!-- MENU -->
+<div id="menuScreen" class="screen active">
+
+<div class="menu-title"> Desafio da Tabuada</div>
+
+<div class="menu-buttons">
+<button class="menu-btn" id="btnPlay">▶ JOGAR</button>
+<button class="menu-btn small" id="btnTutorial">📘 TUTORIAL</button>
+<button class="menu-btn small" id="btnCredits">🎖️ CRÉDITOS</button>
+</div>
+
+<div style="color:#1565c0;font-size:1.4rem;margin-top:20px;">
+desafio · 10 minutos
+</div>
+
+</div>
+
+<!-- TUTORIAL -->
+<div id="tutorialScreen" class="screen">
+
+<div class="info-card">
+
+<h2>📖 Como jogar</h2>
+
+<p>
+Você tem <strong>10 minutos (600 segundos)</strong> para responder quantas perguntas conseguir.
+Aparece uma multiplicação aleatória de <strong>1 a 10</strong>.
+Digite a resposta correta e pressione <strong>Enter</strong> ou clique em <strong>Responder</strong>.
+</p>
+
+<p>
+✅ Acertos aumentam sua pontuação.<br>
+❌ Erros são registrados no contador.<br>
+Ao final do tempo, o jogo mostrará seu desempenho.
+</p>
+
+<p>
+<strong>🧠 Habilidade desenvolvida:</strong><br>
+Fixação da tabuada e cálculo mental da multiplicação.
+</p>
+
+<p>
+<strong>📚 Base curricular:</strong><br>
+BNCC – EF02MA07 e EF03MA03.
+</p>
+
+<small>
+Objeto de Aprendizagem educativo voltado ao desenvolvimento do raciocínio matemático.
+</small>
+
+</div>
+
+<button class="back-arrow" id="backFromTutorial">← VOLTAR</button>
+
+</div>
+
+<!-- CREDITOS -->
+<div id="creditsScreen" class="screen">
+
+<div class="info-card" style="text-align:center;">
+
+<h2>✨ CRÉDITOS</h2>
+
+<div class="credits-names">
+Gilmar Costa<br><br>&<br><br>Keven William
+</div>
+
+<p>Autores do OA</p>
+
+<div class="patrocinio-img">
+<img src="image1.png">
+</div>
+
+<p>Patrocínio</p>
+
+</div>
+
+<button class="back-arrow" id="backFromCredits">← VOLTAR</button>
+
+</div>
+
+<!-- JOGO -->
+<div id="gameScreen" class="screen">
+
+<div class="game-header">
+<span>⏳ <span id="timer">600</span>s</span>
+<span>🏆 <span id="score">0</span></span>
+</div>
+
+<div class="stats">
+<div>✅ <span id="score2">0</span></div>
+<div>❌ <span id="errors">0</span></div>
+</div>
+
+<div class="question" id="question"></div>
+
+<input type="number" id="answer" onkeydown="if(event.key==='Enter')checkAnswer()">
+<br>
+
+<button class="answer-btn" onclick="checkAnswer()">Responder</button>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="final-score" id="final"></div>
+
+<button class="back-menu-small" id="backToMenuFromGame">⬅ MENU</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* FUNDO ANIMADO */
+
+const bg=document.getElementById("mathbg")
+
+function criarNumero(){
+
+const el=document.createElement("div")
+el.className="math"
+
+let a=Math.floor(Math.random()*10)+1
+let b=Math.floor(Math.random()*10)+1
+
+el.innerText=`${a}×${b}`
+
+el.style.left=Math.random()*100+"vw"
+el.style.fontSize=(28+Math.random()*30)+"px"
+el.style.animationDuration=(3+Math.random()*3)+"s"
+
+bg.appendChild(el)
+
+setTimeout(()=>el.remove(),6000)
+
+}
+
+setInterval(criarNumero,200)
+
+/* JOGO */
+
+let tempo=600
+let acertos=0
+let erros=0
+let a,b
+let timerInterval
+
+const timerEl=document.getElementById("timer")
+const scoreEl=document.getElementById("score")
+const score2El=document.getElementById("score2")
+const errorsEl=document.getElementById("errors")
+const questionEl=document.getElementById("question")
+const answerEl=document.getElementById("answer")
+const feedbackEl=document.getElementById("feedback")
+const finalEl=document.getElementById("final")
+const botao=document.querySelector(".answer-btn")
+
+const menuSc=document.getElementById("menuScreen")
+const tutorialSc=document.getElementById("tutorialScreen")
+const creditsSc=document.getElementById("creditsScreen")
+const gameSc=document.getElementById("gameScreen")
+
+function hideAllScreens(){
+[menuSc,tutorialSc,creditsSc,gameSc].forEach(s=>s.classList.remove("active"))
+}
+
+btnPlay.onclick=()=>{hideAllScreens();gameSc.classList.add("active");startGame()}
+btnTutorial.onclick=()=>{hideAllScreens();tutorialSc.classList.add("active")}
+btnCredits.onclick=()=>{hideAllScreens();creditsSc.classList.add("active")}
+
+backFromTutorial.onclick=()=>{hideAllScreens();menuSc.classList.add("active")}
+backFromCredits.onclick=()=>{hideAllScreens();menuSc.classList.add("active")}
+
+backToMenuFromGame.onclick=()=>{clearInterval(timerInterval);hideAllScreens();menuSc.classList.add("active")}
+
+function novaPergunta(){
+a=Math.floor(Math.random()*10)+1
+b=Math.floor(Math.random()*10)+1
+questionEl.textContent=`Quanto é ${a} × ${b}?`
+answerEl.value=''
+answerEl.focus()
+}
+
+function checkAnswer(){
+
+const resposta=parseInt(answerEl.value)
+const correto=a*b
+
+if(resposta===correto){
+acertos++
+feedbackEl.textContent="✅ Correto!"
+feedbackEl.style.color="green"
+}else{
+erros++
+feedbackEl.textContent=`❌ Errado! Era ${correto}`
+feedbackEl.style.color="red"
+}
+
+scoreEl.textContent=acertos
+score2El.textContent=acertos
+errorsEl.textContent=erros
+
+setTimeout(novaPergunta,800)
+
+}
+
+function atualizarTempo(){
+
+tempo--
+timerEl.textContent=tempo
+
+if(tempo<=0){
+
+clearInterval(timerInterval)
+
+answerEl.disabled=true
+botao.disabled=true
+
+let total=acertos+erros
+let porcentagem=total?Math.round((acertos/total)*100):0
+
+finalEl.style.display="block"
+
+finalEl.innerHTML=`
+🏁 FIM DO JOGO
+<br><br>
+✅ Acertos: ${acertos}
+<br>
+❌ Erros: ${erros}
+<br>
+📊 Total: ${total}
+<br><br>
+🎯 Aproveitamento: ${porcentagem}%
+`
+
+}
+
+}
+
+function startGame(){
+
+tempo=600
+acertos=0
+erros=0
+
+timerEl.textContent=tempo
+scoreEl.textContent=0
+score2El.textContent=0
+errorsEl.textContent=0
+
+finalEl.style.display="none"
+
+answerEl.disabled=false
+botao.disabled=false
+
+if(timerInterval)clearInterval(timerInterval)
+
+timerInterval=setInterval(atualizarTempo,1000)
+
+novaPergunta()
+
+}
+
+window.checkAnswer=checkAnswer
+
+</script>
+
+</body>
+</html>
